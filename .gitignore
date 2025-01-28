@@ -1,0 +1,39 @@
+# PyCharm-specific
+.idea/
+
+# Python virtual environments
+.venv/
+.env/
+
+# Byte-compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Python package and distribution files
+build/
+dist/
+*.egg-info/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# System-specific files
+.DS_Store
+Thumbs.db
+
+# Test coverage reports
+htmlcov/
+coverage.xml
+
+# Environment files
+.env
+*.env
+
+
