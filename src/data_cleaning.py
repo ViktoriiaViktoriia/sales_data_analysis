@@ -1,9 +1,10 @@
 #Functions for loading, cleaning, and transforming data.
 
 import pandas as pd
+from typing import List, Optional
 
 # Data loading function
-def load_data(file_path, encoding='utf-8'):
+def load_data(file_path: str, encoding: Optional[str] = "utf-8") -> pd.DataFrame:
     """
     Loads a dataset from a given filepath with a specified encoding.
 
@@ -23,17 +24,23 @@ def load_data(file_path, encoding='utf-8'):
         return df
     except Exception as e:
         print(f"Error loading data: {e}")
-        return None
+        return pd.DataFrame()  # Return an empty DataFrame
 
 # Data cleaning function
-def clean_data(df, columns_to_drop=None, drop_na=False):
+def clean_data(
+    df: pd.DataFrame,
+    columns_to_drop: Optional[List[str]] = None,
+    drop_na: bool = False,
+    drop_duplicates: bool = False
+) -> pd.DataFrame:
     """
-    Cleans the given dataframe by handling missing values, dropping specified columns, and removing duplicates.
+    Cleans the dataframe by dropping specified columns, optionally dropping rows with missing values, and removing duplicates.
 
     Args:
-        df (pandas.DataFrame): The input dataframe to be cleaned.
+        df (pandas.DataFrame): The dataframe to clean.
         columns_to_drop (list, optional): List of column names to drop from the dataframe. Default is None.
-        drop_na (bool, optional): If True, rows with missing values will be dropped. If False, missing values will be filled. Default is False.
+        drop_na (bool, optional): If True, rows with missing values will be dropped. Default is False.
+        drop_duplicates (bool): If true, duplicated rows will be dropped. Default is False.
 
     Returns:
         pandas.DataFrame: The cleaned dataframe with specified columns dropped, missing values handled, and duplicates removed.
@@ -46,9 +53,25 @@ def clean_data(df, columns_to_drop=None, drop_na=False):
 
     if drop_na:
         df = df.dropna()
-    else:
-        # Impute missing data instead
-        df = df.fillna(df.mean())  # Example imputation
 
-    df = df.drop_duplicates()
+    if drop_duplicates:
+        df = df.drop_duplicates()
+
+    return df
+
+def clean_extra_spaces(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove leading, trailing, and excess spaces from all string columns.
+
+    Args:
+        df (pd.DataFrame): DataFrame to clean.
+
+    Returns:
+        pd.DataFrame: Cleaned DataFrame with extra spaces removed.
+    """
+    string_columns = df.select_dtypes(include='object').columns
+
+    for column in string_columns:
+        df[column] = df[column].str.strip().replace(r'\s+', ' ', regex=True)
+
     return df
