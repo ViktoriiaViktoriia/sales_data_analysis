@@ -2,6 +2,7 @@
 
 import pandas as pd
 from typing import List, Optional
+from src import logger
 
 # Data loading function
 def load_data(file_path: str, encoding: Optional[str] = "utf-8") -> pd.DataFrame:
@@ -20,11 +21,14 @@ def load_data(file_path: str, encoding: Optional[str] = "utf-8") -> pd.DataFrame
     """
     try:
         df = pd.read_csv(file_path, encoding=encoding)
-        print(f"Data loaded successfully from {file_path}")
+        logger.info(f"Data loaded successfully from {file_path}")
         return df
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return pd.DataFrame()    #Returns an empty data frame
     except Exception as e:
-        print(f"Error loading data: {e}")
-        return pd.DataFrame()  # Return an empty DataFrame
+        logger.error(f"Unexpected error: {e}")
+        return pd.DataFrame()
 
 # Data cleaning function
 def clean_data(
@@ -48,13 +52,18 @@ def clean_data(
     Raises:
         Exception: If an error occurs during the cleaning process (e.g., invalid dataframe, incorrect column names).
     """
+    logger.info("Starting data cleaning process.")
+
     if columns_to_drop:
+        logger.info(f"Dropping columns: {columns_to_drop}")
         df = df.drop(columns=columns_to_drop, axis=1)
 
     if drop_na:
+        logger.info("Dropping rows with NaN values.")
         df = df.dropna()
 
     if drop_duplicates:
+        logger.info(f"Removing {df.duplicated().sum()} duplicate rows.")
         df = df.drop_duplicates()
 
     return df
@@ -72,6 +81,7 @@ def clean_extra_spaces(df: pd.DataFrame) -> pd.DataFrame:
     string_columns = df.select_dtypes(include='object').columns
 
     for column in string_columns:
+        logger.info("Removing extra spaces from all string columns. Data cleaning process complete.")
         df[column] = df[column].str.strip().replace(r'\s+', ' ', regex=True)
 
     return df
