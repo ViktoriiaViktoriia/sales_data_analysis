@@ -1,8 +1,9 @@
-#Functions for loading, cleaning, and transforming data.
+#Functions for loading, cleaning, and converting data.
 
 import pandas as pd
 from typing import List, Optional
 from src import logger
+from typing import Union
 
 # Data loading function
 def load_data(file_path: str, encoding: Optional[str] = "utf-8") -> pd.DataFrame:
@@ -81,7 +82,55 @@ def clean_extra_spaces(df: pd.DataFrame) -> pd.DataFrame:
     string_columns = df.select_dtypes(include='object').columns
 
     for column in string_columns:
-        logger.info("Removing extra spaces from all string columns. Data cleaning process complete.")
+        logger.info("Removing extra spaces from all string columns. Data cleaning process completed.")
         df[column] = df[column].str.strip().replace(r'\s+', ' ', regex=True)
 
     return df
+
+logger.info("Starting data conversion process.")
+def convert_to_datetime(df: pd.DataFrame, column_name: str, date_format: str = None) -> pd.DataFrame:
+    """
+    Convert a specified column to datetime format.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing the column.
+        column_name (str): The column to convert.
+        date_format (str, optional): Expected date format (e.g., "%Y-%m-%d"). Defaults to None.
+
+    Returns:
+        pd.DataFrame: DataFrame with the column converted to datetime.
+    """
+    try:
+        df[column_name] = pd.to_datetime(df[column_name], format=date_format, errors='raise')
+        logger.info(f"Column '{column_name}' successfully converted to datetime.")
+        return df
+    except ValueError as e:
+        logger.error(f"ValueError occurred while converting column '{column_name}' to datetime: {e}")
+        raise  # Re-raise the error to stop further processing
+    except Exception as e:
+        logger.error(f"Unexpected error occurred while converting column '{column_name}' to datetime: {e}")
+        raise
+
+def convert_to_categorical(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
+    """
+    Convert a specified column to categorical type.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing the column.
+        column_name (str): The column to convert.
+
+    Returns:
+        pd.DataFrame: DataFrame with the column converted to categorical.
+    """
+    try:
+        df[column_name] = df[column_name].astype('category')
+        logger.info(f"Column '{column_name}' successfully converted to categorical type.")
+        return df
+    except TypeError as e:
+        logger.error(f"TypeError occurred while converting column '{column_name}' to categorical: {e}")
+        raise  # Re-raise to propagate error to higher-level function
+    except Exception as e:
+        logger.error(f"Unexpected error occurred while converting column '{column_name}' to categorical: {e}")
+        raise
+
+logger.info("Data conversion process completed.")
