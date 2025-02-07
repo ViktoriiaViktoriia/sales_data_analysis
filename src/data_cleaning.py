@@ -1,9 +1,9 @@
-#Functions for loading, cleaning, and converting data.
+# Functions for loading, cleaning, and converting data.
 
 import pandas as pd
 from typing import List, Optional
 from src import logger
-from typing import Union
+
 
 # Data loading function
 def load_data(file_path: str, encoding: Optional[str] = "utf-8") -> pd.DataFrame:
@@ -23,13 +23,14 @@ def load_data(file_path: str, encoding: Optional[str] = "utf-8") -> pd.DataFrame
     try:
         df = pd.read_csv(file_path, encoding=encoding)
         logger.info(f"Data loaded successfully from {file_path}")
-        return df
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
-        return pd.DataFrame()    #Returns an empty data frame
+        return pd.DataFrame()     # Returns an empty data frame
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         return pd.DataFrame()
+    return df
+
 
 # Data cleaning function
 def clean_data(
@@ -39,7 +40,8 @@ def clean_data(
     drop_duplicates: bool = False
 ) -> pd.DataFrame:
     """
-    Cleans the dataframe by dropping specified columns, optionally dropping rows with missing values, and removing duplicates.
+    Cleans the dataframe by dropping specified columns, optionally dropping rows with missing values,
+    and removing duplicates.
 
     Args:
         df (pandas.DataFrame): The dataframe to clean.
@@ -48,7 +50,8 @@ def clean_data(
         drop_duplicates (bool): If true, duplicated rows will be dropped. Default is False.
 
     Returns:
-        pandas.DataFrame: The cleaned dataframe with specified columns dropped, missing values handled, and duplicates removed.
+        pandas.DataFrame: The cleaned dataframe with specified columns dropped, missing values handled,
+        and duplicates removed.
 
     Raises:
         Exception: If an error occurs during the cleaning process (e.g., invalid dataframe, incorrect column names).
@@ -69,6 +72,7 @@ def clean_data(
 
     return df
 
+
 def clean_extra_spaces(df: pd.DataFrame) -> pd.DataFrame:
     """
     Remove leading, trailing, and excess spaces from all string columns.
@@ -87,7 +91,10 @@ def clean_extra_spaces(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+
 logger.info("Starting data conversion process.")
+
+
 def convert_to_datetime(df: pd.DataFrame, column_name: str, date_format: str = None) -> pd.DataFrame:
     """
     Convert a specified column to datetime format.
@@ -103,13 +110,14 @@ def convert_to_datetime(df: pd.DataFrame, column_name: str, date_format: str = N
     try:
         df[column_name] = pd.to_datetime(df[column_name], format=date_format, errors='raise')
         logger.info(f"Column '{column_name}' successfully converted to datetime.")
-        return df
     except ValueError as e:
         logger.error(f"ValueError occurred while converting column '{column_name}' to datetime: {e}")
         raise  # Re-raise the error to stop further processing
     except Exception as e:
         logger.error(f"Unexpected error occurred while converting column '{column_name}' to datetime: {e}")
         raise
+    return df
+
 
 def convert_to_categorical(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
     """
@@ -125,12 +133,38 @@ def convert_to_categorical(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
     try:
         df[column_name] = df[column_name].astype('category')
         logger.info(f"Column '{column_name}' successfully converted to categorical type.")
-        return df
     except TypeError as e:
         logger.error(f"TypeError occurred while converting column '{column_name}' to categorical: {e}")
         raise  # Re-raise to propagate error to higher-level function
     except Exception as e:
         logger.error(f"Unexpected error occurred while converting column '{column_name}' to categorical: {e}")
         raise
+    return df
+
 
 logger.info("Data conversion process completed.")
+
+
+def add_new_column(df: pd.DataFrame, new_column_name: str, column_computation_func) -> pd.DataFrame:
+    """
+    Adds a new column to the DataFrame based on a column computation.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+        new_column_name (str): Name of the new column.
+        column_computation_func (function): The column computation function tells the program how to calculate the
+                                            values for the new column based on the existing data in the DataFrame.
+
+    Returns:
+        pd.DataFrame: DataFrame with the new column added.
+
+    Raises:
+        ValueError: If the calculation function does not return a valid Series.
+    """
+    try:
+        df[new_column_name] = column_computation_func(df)
+        logger.info(f"Successfully added new column '{new_column_name}'.")
+    except Exception as e:
+        logger.error(f"Error adding new column '{new_column_name}': {e}")
+        raise
+    return df
