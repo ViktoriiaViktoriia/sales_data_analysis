@@ -25,10 +25,10 @@ def load_data(file_path: str, encoding: Optional[str] = "utf-8") -> pd.DataFrame
         logger.info(f"Data loaded successfully from {file_path}")
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
-        return pd.DataFrame()     # Returns an empty data frame
+        raise e   # Re-raise the error to stop further processing
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        return pd.DataFrame()
+        raise ValueError(f"Unexpected error while loading data: {e}")
     return df
 
 
@@ -112,10 +112,10 @@ def convert_to_datetime(df: pd.DataFrame, column_name: str, date_format: str = N
         logger.info(f"Column '{column_name}' successfully converted to datetime.")
     except ValueError as e:
         logger.error(f"ValueError occurred while converting column '{column_name}' to datetime: {e}")
-        raise  # Re-raise the error to stop further processing
+        raise e  # Re-raise the error to stop further processing
     except Exception as e:
         logger.error(f"Unexpected error occurred while converting column '{column_name}' to datetime: {e}")
-        raise
+        raise e
     return df
 
 

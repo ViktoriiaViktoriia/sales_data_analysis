@@ -2,6 +2,7 @@
 .idea/
 
 # Python virtual environments
+venv/
 .venv/
 .env/
 
