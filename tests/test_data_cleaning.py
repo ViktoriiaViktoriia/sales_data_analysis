@@ -13,6 +13,7 @@ def test_load_data(get_mock_csv_file):
         assert not df.empty, "DataFrame should not be empty"
         assert "Product" in df.columns, "Missing 'Product' column"
         assert len(df) == 6, "Unexpected row count"
+        assert df.shape[1] == 5, "Unexpected number of columns"
     finally:
         os.remove(file_path)  # Clean up
 
@@ -23,5 +24,22 @@ def test_load_data_file_not_found():
 
 
 def test_clean_data(mock_data):
-    cleaned_data = clean_data(mock_data)
+    cleaned_data = clean_data(mock_data, ["Postal code"], True, True)
     assert 'Sales' in cleaned_data.columns
+    assert 'Postal code' not in cleaned_data.columns
+    assert not cleaned_data.isna().any().any(), "There are NaN values in the DataFrame"
+    assert not cleaned_data.duplicated().any(), "There are duplicate rows in the DataFrame"
+    assert not cleaned_data.empty, "DataFrame is empty after cleaning"
+    assert cleaned_data.shape[1] == 4, "Expected 4 columns, but got a different number"
+
+
+def test_clean_extra_spaces(mock_data):
+    cleaned_data = clean_extra_spaces(mock_data)
+    assert not cleaned_data.empty, "DataFrame is empty after cleaning"
+    assert 'Date' in cleaned_data.columns
+    assert all(not col.startswith(" ") and not col.endswith(" ") for col in cleaned_data.columns), \
+        "Extra spaces in column names"
+    assert all((cleaned_data[col] != "").all() for col in cleaned_data.select_dtypes(include='object')), \
+        "Empty strings found in DataFrame"
+    assert all(not cleaned_data[col].str.contains(r'^\s|\s$', regex=True).any() for col in
+               cleaned_data.select_dtypes(include='object')), "Extra spaces found in string columns"
