@@ -112,7 +112,7 @@ def convert_to_datetime(df: pd.DataFrame, column_name: str, date_format: str = N
         logger.info(f"Column '{column_name}' successfully converted to datetime.")
     except ValueError as e:
         logger.error(f"ValueError occurred while converting column '{column_name}' to datetime: {e}")
-        raise e  # Re-raise the error to stop further processing
+        raise ValueError("Date conversion failed due to invalid or out-of-range date.") from e
     except Exception as e:
         logger.error(f"Unexpected error occurred while converting column '{column_name}' to datetime: {e}")
         raise e
@@ -133,9 +133,12 @@ def convert_to_categorical(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
     try:
         df[column_name] = df[column_name].astype('category')
         logger.info(f"Column '{column_name}' successfully converted to categorical type.")
+    except KeyError as e:
+        logger.error(f"Column '{column_name}' does not exist: {e}")
+        raise
     except TypeError as e:
         logger.error(f"TypeError occurred while converting column '{column_name}' to categorical: {e}")
-        raise  # Re-raise to propagate error to higher-level function
+        raise
     except Exception as e:
         logger.error(f"Unexpected error occurred while converting column '{column_name}' to categorical: {e}")
         raise
