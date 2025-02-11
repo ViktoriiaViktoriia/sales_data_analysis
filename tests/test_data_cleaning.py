@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import pytest
 from tests import mock_data, get_mock_csv_file
-from src import load_data, clean_data, clean_extra_spaces, convert_to_datetime, convert_to_categorical
+from src import load_data, clean_data, clean_extra_spaces, convert_to_datetime, convert_to_categorical, add_new_column
 
 
 def test_load_data(get_mock_csv_file):
@@ -73,3 +73,24 @@ def test_convert_to_categorical_key_error(mock_data):
     # Invalid column name
     with pytest.raises(KeyError):
         convert_to_categorical(mock_data, "non_existent_column")
+
+
+def test_add_new_column():
+    # Mock DataFrame
+    data = {"sales": [300, 700, 850], "costs": [250, 575, 660]}
+    df = pd.DataFrame(data)
+
+    # Inline computation function
+    def calculate_profit(row):
+        return row["sales"] - row["costs"]
+
+    df_with_new_column = add_new_column(df, "profit", calculate_profit)
+
+    # Assertions
+    assert "profit" in df_with_new_column.columns
+    assert all(df_with_new_column["profit"] == pd.Series([50, 125, 190]))
+
+    # Test for exception when the column already exists
+    with pytest.raises(ValueError, match="Column 'profit' already exists."):
+        add_new_column(df_with_new_column, "profit", calculate_profit)
+

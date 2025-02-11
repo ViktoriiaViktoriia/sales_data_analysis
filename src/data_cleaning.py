@@ -162,11 +162,18 @@ def add_new_column(df: pd.DataFrame, new_column_name: str, column_computation_fu
         pd.DataFrame: DataFrame with the new column added.
 
     Raises:
-        ValueError: If the calculation function does not return a valid Series.
+        ValueError: If the calculation function does not return a valid Series or a new column name already exists.
     """
     try:
-        df[new_column_name] = column_computation_func(df)
+        if new_column_name in df.columns:
+            raise ValueError(f"Column '{new_column_name}' already exists.")
+
+        # Apply the calculation function to each row
+        df[new_column_name] = df.apply(column_computation_func, axis=1)
         logger.info(f"Successfully added new column '{new_column_name}'.")
+    except ValueError as e:
+        logger.error(f"Error adding column: {e}")
+        raise  # Rethrow the exception for external handling if needed
     except Exception as e:
         logger.error(f"Error adding new column '{new_column_name}': {e}")
         raise
