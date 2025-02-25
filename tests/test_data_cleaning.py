@@ -13,7 +13,7 @@ def test_load_data(get_mock_csv_file):
         assert not df.empty, "DataFrame should not be empty"
         assert "Product" in df.columns, "Missing 'Product' column"
         assert len(df) == 6, "Unexpected row count"
-        assert df.shape[1] == 6, "Unexpected number of columns"
+        assert df.shape[1] == 7, "Unexpected number of columns"
     finally:
         os.remove(file_path)  # Clean up
 
@@ -30,7 +30,7 @@ def test_clean_data(mock_data):
     assert not cleaned_data.isna().any().any(), "There are NaN values in the DataFrame"
     assert not cleaned_data.duplicated().any(), "There are duplicate rows in the DataFrame"
     assert not cleaned_data.empty, "DataFrame is empty after cleaning"
-    assert cleaned_data.shape[1] == 5, "Expected a different number of columns"
+    assert cleaned_data.shape[1] == 6, "Expected a different number of columns"
 
 
 def test_clean_extra_spaces(mock_data):
