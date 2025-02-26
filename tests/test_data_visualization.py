@@ -9,16 +9,15 @@ def test_plot_total_sales(mock_data):
     """Test that function plot_total_sales returns a valid Plotly figure."""
     # Call function to test
     fig = plot_total_sales(mock_data, "Date", "Sales", "M")
+    print(mock_data.head())
 
-    # Show the plot (for manual checking)
-    if fig is not None:
-        # Save the figure to a file
-        fig.write_html("test_plot_total_sales.html")
-        assert os.path.exists("test_plot_total_sales.html")
-    else:
-        print("Error: The figure was not created.")
+    assert fig is not None
 
-    assert isinstance(fig, go.Figure) or fig is None
+    fig.write_html("test_plot_total_sales.html")
+    assert os.path.exists("test_plot_total_sales.html")
+    os.remove("test_plot_total_sales.html")
+
+    assert isinstance(fig, go.Figure)
 
 
 def test_plot_regional_sales(mock_data):
@@ -27,13 +26,12 @@ def test_plot_regional_sales(mock_data):
     fig = plot_regional_sales_by_year(mock_data, "Sales", "Region", "Year")
 
     assert fig is not None
-    fig.show()
 
     fig.write_html("test_plot_regional_sales.html")
     assert os.path.exists("test_plot_regional_sales.html")
     os.remove("test_plot_regional_sales.html")
 
-    assert isinstance(fig, go.Figure) or fig is None
+    assert isinstance(fig, go.Figure)
 
     # Check if hovertemplate exists and matches expected template
     # Extract the hover template from the figure's data

@@ -30,6 +30,9 @@ def plot_total_sales(
             logger.error("Required columns not found in DataFrame.")
             return
 
+        # Ensure the date_column is in datetime format
+        df[date_column] = pd.to_datetime(df[date_column], errors="raise")
+
         # Aggregate sales by date
         df["selected_time_period"] = df[date_column].dt.to_period(time_period).astype(str)
         total_sales_summary = df.groupby("selected_time_period")[sales_column].sum().reset_index()
@@ -39,9 +42,9 @@ def plot_total_sales(
             total_sales_summary,
             x=total_sales_summary["selected_time_period"],
             y=total_sales_summary[sales_column],
-            title=f"Total Sales by {time_period}",
+            title=f"Total Sales",
             labels={"y": "Date", "x": "Total Sales"},
-            plot_color=["#145A32"]
+            color_discrete_sequence=["#145A32"]
         )
 
         # Customize hover template
@@ -53,7 +56,7 @@ def plot_total_sales(
         # Update layout
         fig.update_layout(
             title={
-                "text": f"Total Sales by {time_period}",
+                "text": "Total Sales",
                 "x": 0.5,  # Center the title
                 "xanchor": "center",
                 "yanchor": "top"
