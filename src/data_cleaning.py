@@ -119,7 +119,7 @@ def convert_to_datetime(df: pd.DataFrame, column_name: str, date_format: str = N
     return df
 
 
-def convert_to_categorical(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
+def convert_to_categorical(df: pd.DataFrame, column_name: Optional[List[str]]) -> pd.DataFrame:
     """
     Convert a specified column to categorical type.
 

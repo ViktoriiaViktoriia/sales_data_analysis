@@ -1,5 +1,4 @@
 import plotly.graph_objs as go
-import plotly.io as pio
 from src import plot_total_sales, plot_regional_sales_by_year
 from tests import mock_data
 import os
