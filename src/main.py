@@ -42,12 +42,12 @@ def main():
     logger.info("Data cleaning was successfully completed.")
 
     fig = plot_total_sales(cleaned_data, "ORDERDATE", "SALES", "M")
-    fig.write_html("reports/plot_total_sales.html")
+    fig.write_html("reports/plot_total_sales.html", include_plotlyjs='cdn')
     logger.info("Plot saved successfully")
 
     fig = plot_regional_sales_by_year(cleaned_data, "SALES", "COUNTRY",
                                                     "YEAR_ID")
-    fig.write_html("reports/plot_regional_sales.html")
+    fig.write_html("reports/plot_regional_sales.html", include_plotlyjs='cdn')
     logger.info("Plot saved successfully")
 
     logger.info("Script execution finished. All tasks completed successfully.")
