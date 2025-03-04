@@ -1,7 +1,7 @@
 import pandas as pd
 from src import logger
 from src import load_data, clean_data, clean_extra_spaces, convert_to_datetime, convert_to_categorical, add_new_column
-from src import plot_total_sales, plot_regional_sales_by_year
+from src import plot_total_sales, plot_regional_sales_by_year, plot_top_products
 
 
 def discount_percentage_calc(df: pd.DataFrame) -> pd.Series:
@@ -22,6 +22,8 @@ def main():
     """
         Main function to run the sales data analysis pipeline.
     """
+    logger.info("Script execution started...")
+
     # Load data
     file_path = "data/sales_data_sample.csv"
     data = load_data(file_path, "ISO-8859-1")
@@ -42,15 +44,22 @@ def main():
     logger.info("Data cleaning was successfully completed.")
 
     fig = plot_total_sales(cleaned_data, "ORDERDATE", "SALES", "M")
-    fig.write_html("reports/plot_total_sales.html", include_plotlyjs='cdn')
+
+    fig.write_html("reports/plot_total_sales.html", include_plotlyjs="cdn")
     logger.info("Plot saved successfully")
 
     fig = plot_regional_sales_by_year(cleaned_data, "SALES", "COUNTRY",
                                                     "YEAR_ID")
-    fig.write_html("reports/plot_regional_sales.html", include_plotlyjs='cdn')
+    fig.write_html("reports/plot_regional_sales.html", include_plotlyjs="cdn")
     logger.info("Plot saved successfully")
 
-    logger.info("Script execution finished. All tasks completed successfully.")
+    fig = plot_top_products(cleaned_data, "PRODUCTLINE", "ORDERDATE", "COUNTRY",
+                            "SALES", "M")
+
+    fig.write_html("reports/plot_top_selling_products.html", include_plotlyjs="cdn")
+    logger.info("Plot saved successfully")
+
+    logger.info("Main function execution ended.")
 
 
 if __name__ == '__main__':

@@ -211,7 +211,7 @@ def plot_top_products(
             y=top_5_products[sales_column],
             color=top_5_products[country_column],
             title="Top 5 Best-Selling Products",
-            text=top_5_products[date_column]
+            text="selected_time_period"
         )
 
         # Customize hover template

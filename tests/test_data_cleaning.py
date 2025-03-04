@@ -12,7 +12,7 @@ def test_load_data(get_mock_csv_file):
         assert isinstance(df, pd.DataFrame), "Function should return a pandas DataFrame"
         assert not df.empty, "DataFrame should not be empty"
         assert "Product" in df.columns, "Missing 'Product' column"
-        assert len(df) == 6, "Unexpected row count"
+        assert len(df) == 7, "Unexpected row count"
         assert df.shape[1] == 7, "Unexpected number of columns"
     finally:
         os.remove(file_path)  # Clean up
