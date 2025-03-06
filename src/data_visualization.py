@@ -235,3 +235,87 @@ def plot_top_products(
     except Exception as e:
         logger.error(f"Error in plot_top_products: {e}")
         return None
+
+
+def plot_msrp_distribution(
+        df: pd.DataFrame,
+        products_column: str,
+        msrp_column: str,
+        sales_column: str) -> Union[go.Figure, None]:
+    """
+    Plot how MSRP is distributed across products to identify pricing outliers.
+    Plots help to analyze if products with higher MSRP values contribute more to total sales.
+
+    Args:
+        df (pd.DataFrame): Cleaned data.
+        products_column (str): Column name for products.
+        msrp_column (str): The column representing the manufacturer's suggested retail price (MSRP).
+        sales_column (str): Column name for sales.
+
+    Returns:
+        go.Figure, None: Plot appears or nothing.
+    """
+
+    try:
+        logger.info("Plotting sales by MSRP ...")
+
+        # Check if required columns exist in DataFrame
+        missing_columns = [col for col in [sales_column, msrp_column, products_column]
+                           if col not in df.columns]
+        if missing_columns:
+            logger.error("Required columns not found in DataFrame.")
+            raise
+
+        # Group by MSRP, Product, summing up the sales
+        msrp_distribution_df = df.groupby(["MSRP", "PRODUCTLINE"])["SALES"].sum().reset_index()
+
+        fig1 = px.histogram(
+            msrp_distribution_df,
+            x="MSRP",
+            y="SALES",
+            color="PRODUCTLINE",
+            labels={"PRODUCTLINE": "Product"}
+        )
+
+        fig1.update_layout(
+            xaxis_title="MSRP",
+            yaxis_title="Total Sales",
+            title={
+                "text": "Total Sales Distribution by MSRP",
+                "x": 0.5,  # Center the title
+                "xanchor": "center",
+                "yanchor": "top"
+            }
+        )
+
+        logger.info("Total sales by MSRP plotted successfully.")
+
+        # Scatter plot shows individual data points
+        # Explore how MSRP is distributed across products to identify pricing outliers
+        fig2 = px.scatter(
+            msrp_distribution_df,
+            x="MSRP",
+            y="SALES",
+            color="PRODUCTLINE",
+            hover_data=["MSRP"],
+            labels={"PRODUCTLINE": "Product"}
+        )
+
+        fig2.update_layout(
+            xaxis_title="MSRP",
+            yaxis_title="Individual Sales",
+            title={
+                "text": "Individual Sales Distribution by MSRP",
+                "x": 0.5,  # Center the title
+                "xanchor": "center",
+                "yanchor": "top"
+            }
+        )
+
+        logger.info("Individual sales by MSRP plotted successfully.")
+
+        return fig1, fig2
+
+    except Exception as e:
+        logger.error(f"Error in plot_msrp_distribution: {e}")
+        return None
