@@ -1,7 +1,8 @@
 import pandas as pd
 from src import logger
 from src import load_data, clean_data, clean_extra_spaces, convert_to_datetime, convert_to_categorical, add_new_column
-from src import plot_total_sales, plot_regional_sales_by_year, plot_top_products, plot_msrp_distribution
+from src import (plot_total_sales, plot_regional_sales_by_year, plot_top_products, plot_msrp_distribution,
+                 plot_msrp_vs_priceeach)
 
 
 def discount_percentage_calc(df: pd.DataFrame) -> pd.Series:
@@ -65,6 +66,11 @@ def main():
     logger.info("Plot saved successfully")
 
     fig2.write_html("reports/plot_individual_sales_by_msrp.html", include_plotlyjs="cdn")
+    logger.info("Plot saved successfully")
+
+    fig = plot_msrp_vs_priceeach(cleaned_data, "PRODUCTLINE", "MSRP", "PRICEEACH")
+
+    fig.write_html("reports/plot_MSRP_vs_actual_price.html", include_plotlyjs="cdn")
     logger.info("Plot saved successfully")
 
     logger.info("Main function execution ended.")

@@ -319,3 +319,75 @@ def plot_msrp_distribution(
     except Exception as e:
         logger.error(f"Error in plot_msrp_distribution: {e}")
         return None
+
+
+def plot_msrp_vs_priceeach(
+        df: pd.DataFrame,
+        products_column: str,
+        msrp_column: str,
+        price_column: str) -> Union[go.Figure, None]:
+    """
+    Plot to compare the MSRP with the PRICEEACH to understand the markup or discount offered to customers.
+    The scatter plot helps to determine which product has the best balance of MSRP and actual price.
+
+    Args:
+        df (pd.DataFrame): Cleaned data.
+        products_column (str): Column name for products.
+        msrp_column (str): The column representing the manufacturer's suggested retail price (MSRP).
+        price_column (str): Column name for actual price / sale price / final price (PRICEEACH).
+
+    Returns:
+        go.Figure, None: Plot appears or nothing.
+    """
+    try:
+        logger.info("Plotting MSRP vs PRICEEACH started...")
+
+        # Check if required columns exist in DataFrame
+        missing_columns = [col for col in [price_column, msrp_column, products_column]
+                           if col not in df.columns]
+        if missing_columns:
+            logger.error("Required columns not found in DataFrame.")
+            raise
+
+        # MSRP vs Sale price by Product Category
+        grouped_df = df.groupby(["PRODUCTLINE"])[["MSRP", "PRICEEACH"]].mean().reset_index()
+
+        grouped_melted_df = grouped_df.melt(
+            id_vars="PRODUCTLINE",
+            value_vars=["MSRP", "PRICEEACH"],
+            var_name="PRICETYPE",
+            value_name="PRICEVALUE"
+        )
+
+        # Rename "PRICEEACH" to "Sale price" in "PRICETYPE"
+        grouped_melted_df["PRICETYPE"] = grouped_melted_df["PRICETYPE"].replace({
+            "PRICEEACH": "Sale price",
+            "MSRP": "MSRP"  # Keep MSRP unchanged
+        })
+
+        fig = px.scatter(
+            grouped_melted_df,
+            x="PRODUCTLINE",
+            y="PRICEVALUE",
+            color="PRICETYPE",
+            labels={"PRICETYPE": "Price type"},
+            title="MSRP vs Sale price per Product"
+        )
+
+        fig.update_layout(
+            xaxis_title="Product",
+            yaxis_title="MSRP vs Sale price",
+            xaxis_tickangle=-45,
+            title={
+                "x": 0.5,  # Center the title
+                "xanchor": "center",
+                "yanchor": "top"
+            }
+        )
+        logger.info("Plotting MSRP vs PRICEEACH completed successfully.")
+
+        return fig
+
+    except Exception as e:
+        logger.error(f"Error in plot_msrp_distribution: {e}")
+        return None
