@@ -1,7 +1,14 @@
+import matplotlib
 import pandas as pd
 import plotly.express as px
 from typing import Union
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
+from matplotlib import cm
+import matplotlib as mpl
+import matplotlib.ticker as mticker
+from matplotlib.figure import Figure
+
 from src import logger
 
 
@@ -390,4 +397,113 @@ def plot_msrp_vs_priceeach(
 
     except Exception as e:
         logger.error(f"Error in plot_msrp_distribution: {e}")
+        return None
+
+
+def plot_sales_price_quantityordered(
+        df: pd.DataFrame,
+        products_column: str,
+        quantityordered_column: str,
+        sales_column: str,
+        msrp_column: str,
+        price_column: str) -> Union[Figure, None]:
+    """
+    Figure shows average MSRP and PRICEEACH per product, with analysis of total sales and quantity ordered.
+    This visualization helps identify discount impact, and products with the highest demand,
+    making it useful for pricing strategy and sales performance evaluation.
+
+    Args:
+        df (pd.DataFrame): Cleaned data.
+        products_column (str): Column name for products.
+        quantityordered_column (str): The column name represents quantity ordered.
+        sales_column (str): Column name for sales.
+        msrp_column (str): The column representing the manufacturer's suggested retail price (MSRP).
+        price_column (str): Column name for actual price / sale price / final price (PRICEEACH).
+
+    Returns:
+        Figure: Returns figure.
+    """
+    try:
+        logger.info("Plotting sales, price, quantity ordered started...")
+
+        # Check if required columns exist in DataFrame
+        missing_columns = [col for col in [price_column, msrp_column, products_column, sales_column,
+                                           quantityordered_column] if col not in df.columns]
+        if missing_columns:
+            logger.error("Required columns not found in DataFrame.")
+            raise
+
+        # Group by product
+        df_grouped = df.groupby("PRODUCTLINE").agg({
+            "MSRP": "mean",  # Get mean MSRP
+            "PRICEEACH": "mean",  # Get mean sale price
+            "SALES": "sum",  # Sum of total sales
+            "QUANTITYORDERED": "sum"  # Sum of quantity ordered
+        }).reset_index()
+
+        # Reshape the data using melt()
+        df_melted = df_grouped.melt(
+            id_vars=["PRODUCTLINE", "SALES", "QUANTITYORDERED"],
+            value_vars=["MSRP", "PRICEEACH"],
+            var_name="PRICETYPE",
+            value_name="PRICE"
+        )
+
+        # Create figure
+        fig, ax = plt.subplots(figsize=(20, 35))
+
+        # Normalize quantity ordered for color mapping
+        cmap = plt.get_cmap("coolwarm")
+
+        msrp_df = df_melted[df_melted["PRICETYPE"] == "MSRP"]
+
+        # Scatter plot for MSRP
+        scatter_msrp = ax.scatter(
+            msrp_df["PRICE"], msrp_df["SALES"],
+            c=msrp_df["QUANTITYORDERED"],  cmap=cmap,
+            alpha=0.8, edgecolors="black", marker="^", label="MSRP", s=400
+        )
+
+        priceeach_df = df_melted[df_melted["PRICETYPE"] == "PRICEEACH"]
+
+        # Scatter plot for Sale price (PRICEEACH)
+        ax.scatter(
+            priceeach_df["PRICE"], priceeach_df["SALES"],
+            c=priceeach_df["QUANTITYORDERED"], cmap=cmap,
+            alpha=0.8, edgecolors="black", marker="o", label="Sale Price", s=400
+        )
+
+        # Add Product name annotations
+        for i, row in df_melted.iterrows():
+            ax.annotate(row["PRODUCTLINE"], (row["PRICE"], row["SALES"] + 70000),
+                        fontsize=12, color="black", ha="center")
+
+        # Labels and Title
+        ax.set_xlabel("Price [MSRP & Sale Price]", fontsize=18, labelpad=15)
+        ax.set_ylabel("Total sales", fontsize=18, labelpad=15)
+        ax.set_title("MSRP vs. Sale Price with Analysis of Sales and Quantity Ordered", fontsize=22, pad=20)
+
+        # Increase font size for tick labels
+        ax.tick_params(axis="both", which="major", labelsize=16)
+
+        # Add color bar for quantity ordered
+        cbar = plt.colorbar(scatter_msrp, ax=ax)
+        cbar.set_label("Quantity ordered", fontsize=18)
+
+        # Format color bar labels to show 'k'
+        cbar.ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{int(x/1000)}k"))
+
+        # Move legend outside
+        ax.legend(loc="upper left", bbox_to_anchor=(1.2, 1), borderpad=1.7, labelspacing=1.6)
+
+        plt.ylim(100000, 4200000)
+        plt.xlim(70, 123)
+
+        # Save the figure
+        plt.savefig("reports/plot_sales_prices_quantityordered.jpg", format="jpg", dpi=300, bbox_inches="tight")
+
+        return fig
+
+    except Exception as e:
+        logger.error(f"Error in plot_sales_prices_quantityordered: {e}")
         return None
