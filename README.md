@@ -4,20 +4,20 @@
 This project focuses on creating modular and maintainable data processing scripts for efficient data analysis and visualization. The structure is designed with separate modules for data loading, cleaning, and visualization. It analyzes sales data to identify trends and provide meaningful insights, such as total sales, top-selling products, bestsellers by region, average deal size, and total sales by MSRP.
 
 ## 🗂️ Project Structure
-| Directory                       | Description                         |
-|---------------------------------|-------------------------------------|
-| `sales_data_analysis/`          | Root project directory              |
-| ├── `data/`                     | Raw and processed data files        |
-| ├── `notebook/`                 | Jupyter notebooks for exploration   |
-| ├── `reports/`                  | PowerBI report files                |                                     |
-| ├── `src/`                      | Source code for data processing     |
-| │   ├── `__init__.py`           | Initialize the src package          |                         |
-| │   ├── `data_cleaning.py`      | Data loading and cleaning functions |
-| │   ├── `data_logging.py`       | Logging configuration file          |                                     |
-| │   ├── `data_visualization.py` | Data visualization functions        |
-| │   └── `main.py`               | Main script orchestrating tasks     |
-| ├── `tests/`                    | Unit tests                          |
-| └── `README.md`                 | Project documentation               |
+| Directory                       | Description                              |
+|---------------------------------|------------------------------------------|
+| `sales_data_analysis/`          | Root project directory                   |
+| ├── `data/`                     | Raw and processed data files             |
+| ├── `notebook/`                 | Jupyter notebooks for exploration        |
+| ├── `reports/`                  | PowerBI report files, HTML files, images |                                     |
+| ├── `src/`                      | Source code for data processing          |
+| │   ├── `__init__.py`           | Initialize the src package               |                         |
+| │   ├── `data_cleaning.py`      | Data loading and cleaning functions      |
+| │   ├── `data_logging.py`       | Logging configuration file               |                                     |
+| │   ├── `data_visualization.py` | Data visualization functions             |
+| │   └── `main.py`               | Main script orchestrating tasks          |
+| ├── `tests/`                    | Unit tests                               |
+| └── `README.md`                 | Project documentation                    |
 
 ## 📊 Data source
 [Sample Sales Data](https://www.kaggle.com/datasets/kyanyoga/sample-sales-data/data) is a dataset provided by Kaggle.
@@ -26,13 +26,15 @@ This project focuses on creating modular and maintainable data processing script
 - Data Cleaning: 
    - Drops unnecessary columns 
    - Handles missing values and duplicates
+   - Add new columns
 - Visualizations:
    - Sales distribution by region
    - Monthly sales performance
    - Top-selling products
-   - Average deal size
    - Sales distribution by MSRP
-   - Correlation matrix
+   - Quantity ordered analysis
+   - Pricing strategy
+   - Average deal size
 
 ## 🚀 How to Get Started
 **1. Clone the Repository**
@@ -45,10 +47,11 @@ This project focuses on creating modular and maintainable data processing script
    pip install pandas
    pip install plotly
    pip install pytest
+   pip install matplotlib
    ```
 **3. Run the Main Script**
    ```bash
-   python src/main.py
+   python -m src.main
    ```
 
 ## 🧪 Tests
