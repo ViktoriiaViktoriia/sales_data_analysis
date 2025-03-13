@@ -2,7 +2,7 @@ import pandas as pd
 from src import logger
 from src import load_data, clean_data, clean_extra_spaces, convert_to_datetime, convert_to_categorical, add_new_column
 from src import (plot_total_sales, plot_regional_sales_by_year, plot_top_products, plot_msrp_distribution,
-                 plot_msrp_vs_priceeach, plot_sales_price_quantityordered)
+                 plot_msrp_vs_priceeach, plot_sales_price_quantityordered, plot_discount_pricing_strategy)
 
 
 def discount_percentage_calc(df: pd.DataFrame) -> pd.Series:
@@ -16,7 +16,7 @@ def discount_percentage_calc(df: pd.DataFrame) -> pd.Series:
         Returns:
         pd.Series: A Series containing discount percentages.
     """
-    return ((df['MSRP'] - df['PRICEEACH']) / df['MSRP']) * 100
+    return ((df['MSRP'] - df['PRICEEACH']) / df['MSRP']) * 100 if df['MSRP'] > df['PRICEEACH'] else 0
 
 
 def main():
@@ -78,10 +78,12 @@ def main():
                                            "PRICEEACH")
     logger.info("Plot saved successfully")
 
+    fig = plot_discount_pricing_strategy(cleaned_data, "PRODUCTLINE", "ORDERDATE",
+                                         "DISCOUNT_PCT")
+    fig.write_html("reports/plot_pricing_strategy.html", include_plotlyjs="cdn")
+
     logger.info("Main function execution ended.")
 
 
 if __name__ == '__main__':
     main()
-
-

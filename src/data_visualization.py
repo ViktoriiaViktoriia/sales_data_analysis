@@ -1,11 +1,8 @@
-import matplotlib
 import pandas as pd
 import plotly.express as px
 from typing import Union
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
-from matplotlib import cm
-import matplotlib as mpl
 import matplotlib.ticker as mticker
 from matplotlib.figure import Figure
 
@@ -281,7 +278,7 @@ def plot_msrp_distribution(
             x="MSRP",
             y="SALES",
             color="PRODUCTLINE",
-            labels={"PRODUCTLINE": "Product"}
+            labels={"PRODUCTLINE": "Product", "SALES": "Sales"}
         )
 
         fig1.update_layout(
@@ -305,7 +302,7 @@ def plot_msrp_distribution(
             y="SALES",
             color="PRODUCTLINE",
             hover_data=["MSRP"],
-            labels={"PRODUCTLINE": "Product"}
+            labels={"PRODUCTLINE": "Product", "SALES": "Sales"}
         )
 
         fig2.update_layout(
@@ -377,7 +374,7 @@ def plot_msrp_vs_priceeach(
             x="PRODUCTLINE",
             y="PRICEVALUE",
             color="PRICETYPE",
-            labels={"PRICETYPE": "Price type"},
+            labels={"PRICETYPE": "Price type", "PRODUCTLINE": "Product", "PRICEVALUE": "Price value"},
             title="MSRP vs Sale price per Product"
         )
 
@@ -506,4 +503,82 @@ def plot_sales_price_quantityordered(
 
     except Exception as e:
         logger.error(f"Error in plot_sales_prices_quantityordered: {e}")
+        return None
+
+
+def plot_discount_pricing_strategy(
+        df: pd.DataFrame,
+        products_column: str,
+        date_column: str,
+        discount_column: str) -> Union[go.Figure, None]:
+    """
+    Plot demonstrate pricing strategy over time, rolling average discount by product.
+
+    Args:
+        df (pd.DataFrame): Cleaned data.
+        products_column (str): Column name for products.
+        date_column (str): The column representing the date / period.
+        discount_column (str): Column name for discount (%).
+
+    Returns:
+        go.Figure, None: Plot appears or nothing.
+    """
+
+    try:
+        logger.info("Plotting discount by product over time...")
+
+        # Check if required columns exist in DataFrame
+        missing_columns = [col for col in [products_column, date_column,
+                                           discount_column] if col not in df.columns]
+        if missing_columns:
+            logger.error("Required columns not found in DataFrame.")
+            raise
+
+        # Filter only valid discounts (Discount > 0)
+        discount_filtered_df = df[df["DISCOUNT_PCT"] > 0]
+
+        # Group by date and product and calculate the average discount percentage
+        df_grouped_discount = (
+            discount_filtered_df.groupby(["ORDERDATE", "PRODUCTLINE"])
+            .agg({"DISCOUNT_PCT": "mean"})
+            .reset_index()
+        )
+
+        # Group by product, and apply rolling window for discount calculation
+        df_grouped_discount["ROLLING_AVG_DISCOUNT_%"] = (
+            df_grouped_discount.groupby("PRODUCTLINE")["DISCOUNT_PCT"]
+            .rolling(window=30)
+            .mean()
+            .reset_index(level=0, drop=True)
+        )
+
+        # Create Line Chart
+        fig = px.line(
+            df_grouped_discount,
+            x="ORDERDATE",
+            y="ROLLING_AVG_DISCOUNT_%",
+            color="PRODUCTLINE",
+            title="Pricing Strategy: Rolling Average Discount by Product Over Time",
+            labels={"ROLLING_AVG_DISCOUNT_%": "Discount (%)", "ORDERDATE": "Date", "PRODUCTLINE": "Product"},
+        )
+
+        # Customize layout
+        fig.update_layout(
+            xaxis_title="Date",
+            xaxis=dict(range=["2003-08-01", "2005-07-31"]),  # Set the date range
+            yaxis_title="Rolling average discount (%)",
+            legend_title="Product",
+            hovermode="x unified",
+            width=1000,  # Width in pixels
+            height=700,  # Height in pixels
+            title={
+                "x": 0.5,  # Center the title
+                "xanchor": "center",
+                "yanchor": "top"
+            }
+        )
+        return fig
+
+    except Exception as e:
+        logger.error(f"Error in plot_pricing_strategy: {e}")
         return None
