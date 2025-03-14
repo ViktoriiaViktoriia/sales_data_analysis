@@ -26,7 +26,7 @@ This project focuses on creating modular and maintainable data processing script
 - Data Cleaning: 
    - Drops unnecessary columns 
    - Handles missing values and duplicates
-   - Add new columns
+   - Adds new columns
 - Visualizations:
    - Sales distribution by region
    - Monthly sales performance

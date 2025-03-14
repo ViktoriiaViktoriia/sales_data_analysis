@@ -582,3 +582,62 @@ def plot_discount_pricing_strategy(
     except Exception as e:
         logger.error(f"Error in plot_pricing_strategy: {e}")
         return None
+
+
+def plot_dealsize_trends(
+        df: pd.DataFrame,
+        dealsize_column: str,
+        date_column: str) -> Union[go.Figure, None]:
+    """
+    Plot demonstrate pricing strategy over time, rolling average discount by product.
+
+    Args:
+        df (pd.DataFrame): Cleaned data.
+        dealsize_column (str): Column name for deal sizes.
+        date_column (str): The column representing the date / period.
+
+    Returns:
+        go.Figure, None: Plot appears or nothing.
+    """
+
+    try:
+        logger.info("Plotting deal size trends over time...")
+
+        # Check if required columns exist in DataFrame
+        missing_columns = [col for col in [date_column,
+                                           dealsize_column] if col not in df.columns]
+        if missing_columns:
+            logger.error("Required columns not found in DataFrame.")
+            raise
+
+        # Count deal sizes per date
+        df_grouped_dealsize = (
+            df.groupby(["ORDERDATE", "DEALSIZE"], observed=False)
+            .size()
+            .reset_index(name="COUNTDEALS")
+        )
+
+        # Stacked area chart
+        fig = px.area(
+            df_grouped_dealsize,
+            x="ORDERDATE",
+            y="COUNTDEALS",
+            color="DEALSIZE",
+            title="Deal Size Trends Over Time",
+            labels={"ORDERDATE": "Order date", "DEALSIZE": "Deal size", "COUNTDEALS": "The number of deals"}
+        )
+
+        # Customize layout
+        fig.update_layout(
+            title={
+                "x": 0.5,  # Center the title
+                "xanchor": "center",
+                "yanchor": "top"
+            }
+        )
+        return fig
+
+    except Exception as e:
+        logger.error(f"Error in plot_pricing_strategy: {e}")
+        return None
+
