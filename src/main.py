@@ -4,7 +4,7 @@ from src import logger
 from src import load_data, clean_data, clean_extra_spaces, convert_to_datetime, convert_to_categorical, add_new_column
 from src import (plot_total_sales, plot_regional_sales_by_year, plot_top_products, plot_msrp_distribution,
                  plot_msrp_vs_priceeach, plot_sales_price_quantityordered, plot_discount_pricing_strategy,
-                 plot_dealsize_trends)
+                 plot_dealsize_trends, plot_rfm)
 
 
 def discount_percentage_calc(df: pd.DataFrame) -> pd.Series:
@@ -78,15 +78,17 @@ def main():
     plot_sales_price_quantityordered(cleaned_data, "PRODUCTLINE",
                                            "QUANTITYORDERED", "SALES", "MSRP",
                                            "PRICEEACH")
-    logger.info("Plot saved successfully")
 
     fig = plot_discount_pricing_strategy(cleaned_data, "PRODUCTLINE", "ORDERDATE",
                                          "DISCOUNT_PCT")
     fig.write_html("reports/plot_pricing_strategy.html", include_plotlyjs="cdn")
 
     fig = plot_dealsize_trends(cleaned_data, "DEALSIZE", "ORDERDATE")
-
     fig.write_html("reports/plot_deal_size_trends.html", include_plotlyjs="cdn")
+
+    fig = plot_rfm(cleaned_data, "ORDERNUMBER", "ORDERDATE",
+                   "CUSTOMERNAME", "SALES")
+    fig.write_html("reports/plot_rfm.html", include_plotlyjs="cdn")
 
     logger.info("Main function execution ended.")
 

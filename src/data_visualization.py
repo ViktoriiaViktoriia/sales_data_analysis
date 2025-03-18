@@ -498,7 +498,7 @@ def plot_sales_price_quantityordered(
 
         # Save the figure
         plt.savefig("reports/plot_sales_prices_quantityordered.jpg", format="jpg", dpi=300, bbox_inches="tight")
-
+        logger.info("Plotting quantity ordered completed successfully. Image saved.")
         return fig
 
     except Exception as e:
@@ -577,6 +577,7 @@ def plot_discount_pricing_strategy(
                 "yanchor": "top"
             }
         )
+        logger.info("Plotting discount pricing strategy completed successfully.")
         return fig
 
     except Exception as e:
@@ -635,9 +636,88 @@ def plot_dealsize_trends(
                 "yanchor": "top"
             }
         )
+        logger.info("Plotting deal size trends completed successfully.")
         return fig
 
     except Exception as e:
         logger.error(f"Error in plot_pricing_strategy: {e}")
         return None
+
+
+def plot_rfm(
+        df: pd.DataFrame,
+        ordernumber_column: str,
+        orderdate_column: str,
+        customername_column: str,
+        sales_column: str) -> Union[go.Figure, None]:
+    """
+    RFM Analysis: 3D scatter plot visualize three metrics: Recency (x-axis), how recent each customer purchased,
+    Frequency (y-axis), how often each customer purchased, Monetary(z-axis), total sales per customer,
+    how much each customer spent.
+
+    Args:
+        df (pd.DataFrame): Cleaned data.
+        ordernumber_column (str): Column name for number of orders.
+        orderdate_column (str): The column representing the date of order.
+        customername_column (str): The column represents customer name.
+        sales_column (str): Column name for sales.
+
+    Returns:
+        go.Figure, None: Plot appears or nothing.
+    """
+
+    try:
+        logger.info("Plotting rfm...")
+
+        # Check if required columns exist in DataFrame
+        missing_columns = [col for col in [ordernumber_column, orderdate_column,
+                                           customername_column, sales_column] if col not in df.columns]
+        if missing_columns:
+            logger.error("Required columns not found in DataFrame.")
+            raise
+
+        # Check that each order includes multiple items
+        df.groupby("ORDERNUMBER").size().describe()
+
+        # Group customers based on their purchase behavior
+        # RFM Analysis (Recency, Frequency, Monetary)
+        # Last date in the dataset
+        analysis_date = df["ORDERDATE"].max()
+
+        rfm = df.groupby("CUSTOMERNAME").agg(
+            Recency=("ORDERDATE", lambda x: (analysis_date - x.max()).days),
+            Frequency=("ORDERNUMBER", "nunique"),  # Count of unique orders per customer
+            Monetary=("SALES", "sum")  # Total spending per customer
+        ).reset_index()
+
+        # Assuming 'rfm' DataFrame contains 'Recency', 'Frequency', 'Monetary'
+        fig = px.scatter_3d(
+            rfm,
+            x="Recency",
+            y="Frequency",
+            z="Monetary",
+            color="Monetary",  # Color points based on spending
+            labels={"Recency": "Recency (Days)<br>(How recently a customer made a purchase)",
+                    "Frequency": "Frequency<br>(Orders per customer. <br>How often a customer buys)",
+                    "Monetary": 'Monetary Value<br>(Total sales per customer.<br> How much a customer has spent)'},
+            title="3D Visualization of Recency, Frequency, and Monetary")
+
+        # Increase figure size
+        fig.update_layout(
+            width=1200,
+            height=850,
+            title={
+                "x": 0.5,  # Center the title
+                "xanchor": "center",
+                "yanchor": "top"
+            }
+        )
+        logger.info("Plotting RFM 3D completed successfully.")
+
+        return fig
+
+    except Exception as e:
+        logger.error(f"Error in plot_rfm: {e}")
+        return None
+
 
