@@ -86,9 +86,12 @@ def main():
     fig = plot_dealsize_trends(cleaned_data, "DEALSIZE", "ORDERDATE")
     fig.write_html("reports/plot_deal_size_trends.html", include_plotlyjs="cdn")
 
-    fig = plot_rfm(cleaned_data, "ORDERNUMBER", "ORDERDATE",
+    fig, fig1, fig2, fig3 = plot_rfm(cleaned_data, "ORDERNUMBER", "ORDERDATE",
                    "CUSTOMERNAME", "SALES")
     fig.write_html("reports/plot_rfm.html", include_plotlyjs="cdn")
+    fig1.write_html("reports/plot_rfm_pie_r.html", include_plotlyjs="cdn")
+    fig2.write_html("reports/plot_rfm_pie_f.html", include_plotlyjs="cdn")
+    fig3.write_html("reports/plot_rfm_pie_m.html", include_plotlyjs="cdn")
 
     logger.info("Main function execution ended.")
 

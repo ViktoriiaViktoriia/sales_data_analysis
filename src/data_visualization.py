@@ -712,9 +712,51 @@ def plot_rfm(
                 "yanchor": "top"
             }
         )
+
+        # 3 pie charts for RFM show how customers are distributed within each metric.
+        rfm["Recency_Metric"] = pd.cut(rfm["Recency"], bins=[0, 30, 90, 180, 270, 365, rfm["Recency"].max()],
+                                       labels=["Very recent customers: 0-30 days", "Recent customers: 31-90 days",
+                                               "Occasional customers: 91-180 days",
+                                               "Medium-engagement customers: 181-270 days",
+                                               "Low-engagement customers: 271-365 days",
+                                               "Inactive customers: 365+ days"],
+                                       duplicates="drop")
+
+        rfm["Frequency_Metric"] = pd.cut(rfm["Frequency"], bins=[1, 2, 4, 6, 26],
+                                         labels=["Rare buyers: 1-2 orders", "Occasional buyers: 3-4 orders",
+                                                 "Frequent buyers: 5-6 orders", "Very frequent buyers: 7+ orders"])
+
+        rfm["Monetary_Metric"] = pd.cut(rfm["Monetary"],
+                                        bins=[0, 200000, 400000, 600000, 800000, rfm['Monetary'].max()],
+                                        labels=["0-200k", "200k-400k", "400k-600k", "600k-800k", "800k+"],
+                                        duplicates="drop")
+
+        # Create summary for each metric
+        recency_counts = rfm["Recency_Metric"].value_counts().reset_index()
+        recency_counts.columns = ["Category", "Count"]
+
+        frequency_counts = rfm["Frequency_Metric"].value_counts().reset_index()
+        frequency_counts.columns = ["Category", "Count"]
+
+        monetary_counts = rfm["Monetary_Metric"].value_counts().reset_index()
+        monetary_counts.columns = ["Category", "Count"]
+
+        # Generate three pie charts
+        fig1 = px.pie(recency_counts, names="Category", values="Count", title="Customer Recency Distribution",
+                      color_discrete_sequence=["lightgreen", "#F4A7A8", "#5872E6", "#ADBBB0", "#97664E", "gold"])
+        fig2 = px.pie(frequency_counts, names="Category", values="Count", title="Customer Frequency Distribution",
+                      color_discrete_sequence=["#C2C6B3", "#68703E", "#B8A3B0", "#4C7588"])
+        fig3 = px.pie(monetary_counts, names="Category", values="Count", title="Customer Monetary Distribution",
+                      color_discrete_sequence=["#5B0868", "#97B5C9", "#ECCC09", "#DC0863", "#3FBF63"])
+
+        fig1.update_layout(margin=dict(t=100), title=dict(y=0.95), legend_title="Categories:")
+        fig2.update_layout(margin=dict(t=100), title=dict(y=0.95), legend_title="Categories:")
+        fig3.update_layout(margin=dict(t=150), title=dict(y=0.95),
+                           legend_title="Categories (How much a customer has spent):")
+
         logger.info("Plotting RFM 3D completed successfully.")
 
-        return fig
+        return fig, fig1, fig2, fig3
 
     except Exception as e:
         logger.error(f"Error in plot_rfm: {e}")
