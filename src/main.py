@@ -51,10 +51,10 @@ def main():
     fig.write_html("reports/plot_total_sales.html", include_plotlyjs="cdn")
     logger.info("Plot saved successfully")
 
-    fig = plot_regional_sales_by_year(cleaned_data, "SALES", "COUNTRY",
-                                                    "YEAR_ID")
+    fig, fig2 = plot_regional_sales_by_year(cleaned_data, "SALES", "COUNTRY",
+                                            "YEAR_ID")
     fig.write_html("reports/plot_regional_sales.html", include_plotlyjs="cdn")
-    logger.info("Plot saved successfully")
+    fig2.write_html("reports/plot_avg_regional_sales_map.html", include_plotlyjs="cdn")
 
     fig = plot_top_products(cleaned_data, "PRODUCTLINE", "ORDERDATE", "COUNTRY",
                             "SALES", "M")

@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.express as px
+import pycountry
 from typing import Union
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
@@ -80,6 +81,14 @@ def plot_total_sales(
         return None
 
 
+# Function to get ISO-3 country codes
+def get_iso3_country_codes(country_name):
+    try:
+        return pycountry.countries.lookup(country_name).alpha_3
+    except LookupError:
+        return None  # If not found, return None
+
+
 def plot_regional_sales_by_year(
     df: pd.DataFrame,
     sales_column: str,
@@ -150,8 +159,38 @@ def plot_regional_sales_by_year(
             bargap=0.2
         )
 
+        # Group by country and calculate average sales over years
+        avg_regional_sales = regional_sales.groupby("COUNTRY")["SALES"].mean().reset_index()
+
+        avg_regional_sales.columns = ["COUNTRY", "AVERAGESALES"]
+
+        # Apply function to create new column with ISO-3 codes
+        avg_regional_sales["ISO_CODES"] = avg_regional_sales["COUNTRY"].apply(get_iso3_country_codes)
+
+        fig2 = px.choropleth(
+            avg_regional_sales,
+            locations="ISO_CODES",
+            color="AVERAGESALES",
+            hover_name="COUNTRY",
+            hover_data={"ISO_CODES": False},
+            color_continuous_scale="Viridis",  # Color scale
+            projection="natural earth",  # Map projection type
+            title="Average Regional Sales Performance (2003-2005)",
+            labels={"ISO_CODES": "ISO-3 code", "AVERAGESALES": 'Average sales', "COUNTRY": "Country"}
+        )
+
+        # Update layout
+        fig2.update_layout(
+            title={
+                "x": 0.45,  # Center the title
+                "xanchor": "center",
+                "yanchor": "top"
+            }
+        )
+
         logger.info("Regional sales plot successfully created.")
-        return fig
+        logger.info("Average regional sales plot saved successfully")
+        return fig, fig2
 
     except Exception as e:
         logger.exception(f"An error occurred while creating the sales plot: {e}")
