@@ -317,18 +317,25 @@ def plot_msrp_distribution(
             x="MSRP",
             y="SALES",
             color="PRODUCTLINE",
-            labels={"PRODUCTLINE": "Product", "SALES": "Sales"}
+            labels={"PRODUCTLINE": "Product", "SALES": "Sales"},
+            color_discrete_sequence=["#C75AA1", "#A7CA91", "#C85D00", "#042F9A", "#B4C0E7", "#FFD5E1", "#CB0536"]
         )
 
         fig1.update_layout(
             xaxis_title="MSRP",
             yaxis_title="Total Sales",
-            title={
-                "text": "Total Sales Distribution by MSRP",
-                "x": 0.5,  # Center the title
-                "xanchor": "center",
-                "yanchor": "top"
-            }
+            title=dict(
+                text="Total Sales Distribution by MSRP",
+                x=0.5,  # Center the title
+                xanchor="center",
+                yanchor="top",
+                y=0.95,
+                font=dict(
+                    size=24,
+                    weight="bold"
+                )
+            ),
+            margin=dict(t=110)
         )
 
         logger.info("Total sales by MSRP plotted successfully.")
@@ -664,16 +671,23 @@ def plot_dealsize_trends(
             y="COUNTDEALS",
             color="DEALSIZE",
             title="Deal Size Trends Over Time",
-            labels={"ORDERDATE": "Order date", "DEALSIZE": "Deal size", "COUNTDEALS": "The number of deals"}
+            labels={"ORDERDATE": "Order date", "DEALSIZE": "Deal size", "COUNTDEALS": "The number of deals"},
+            color_discrete_sequence=["#7C6DAA", "gold", "olive"]
         )
 
         # Customize layout
         fig.update_layout(
-            title={
-                "x": 0.5,  # Center the title
-                "xanchor": "center",
-                "yanchor": "top"
-            }
+            title=dict(
+                x=0.5,  # Center the title
+                xanchor="center",
+                yanchor="top",
+                y=0.95,
+                font=dict(
+                    size=24,
+                    weight="bold"
+                )
+            ),
+            margin=dict(t=120)
         )
         logger.info("Plotting deal size trends completed successfully.")
         return fig

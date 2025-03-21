@@ -24,10 +24,18 @@ This project focuses on creating modular and maintainable data processing script
 
 ## ✅ Outcomes
 - Data Cleaning: 
-   - Drops unnecessary columns 
-   - Handles missing values and duplicates
-   - Adds new columns
-- Visualizations:
+   - Dropped unnecessary columns 
+   - Handled missing values 
+   - Removed duplicates
+   - Corrected data types
+   - Fixed inconsistencies
+  
+- Data Transformation:
+   - Added new columns
+   - Changed formats
+   - Grouped data
+  
+- Visualization (Created plots for):
    - Sales distribution by region
    - Monthly sales performance
    - Top-selling products
@@ -35,6 +43,7 @@ This project focuses on creating modular and maintainable data processing script
    - Quantity ordered analysis
    - Pricing strategy
    - Average deal size
+   - RFM analysis
 
 ## 🚀 How to Get Started
 **1. Clone the Repository**
@@ -48,6 +57,7 @@ This project focuses on creating modular and maintainable data processing script
    pip install plotly
    pip install pytest
    pip install matplotlib
+   pip install pycountry
    ```
 **3. Run the Main Script**
    ```bash
