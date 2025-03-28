@@ -28,7 +28,8 @@ pricing strategy insights, and RFM analysis.
 | │   ├── `mock_data.py`               | Mock data for unit test purposes            |
 | │   ├── `test_data_cleaning.py`      | Unit tests for data cleaning functions      |
 | │   ├── `test_data_visualization.py` | Unit tests for data visualization functions |
-| ├── `LICENSE`                        | License information                         |
+| ├── `LICENSE`                        | License information (code)                  |
+| ├── `LICENSE-DATA.txt`               | License information (data)                  |
 | └── `README.md`                      | Project documentation                       |
 
 ## 📊 Data source
@@ -57,7 +58,7 @@ pricing strategy insights, and RFM analysis.
    - Average deal size
    - RFM analysis
 
-## Power BI dashboard
+## 📊 Power BI dashboard
 
 ![Preview](reports/sales_data_powerBI_dashboard.png)
 
@@ -89,6 +90,6 @@ Run unit tests with:
 ## 🤝 Contributions
 Your feedback and contributions are welcome! Submit issues or pull requests to collaborate.
 
-## License 
+## 📜 License 
 - **Code**: Licensed under the [Apache License 2.0](LICENSE)
 - **Data**: Licensed under [CC0 1.0 Public Domain Dedication](LICENSE-DATA.txt)
